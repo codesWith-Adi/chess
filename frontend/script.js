@@ -7,6 +7,7 @@ const squares = document.querySelectorAll('.blocks');
 const messageElement = document.querySelector('#message');
 const undoButton = document.querySelector('#undoButton');
 const resetButton = document.querySelector('#resetButton');
+const modeSelect = document.querySelector('#modeSelect');
 let positions = { white: [], black: [], last_move: null };
 let selectedSquare = null;
 
@@ -50,6 +51,8 @@ function renderBoard() {
 }
 
 function selectSquare(squareName) {
+    if (positions.mode === 'engine' && positions.turn === 'black') return;
+
     const piece = pieceAt(squareName);
     const selectedMoves = positions.legal_moves?.[selectedSquare] || [];
     const pieceMoves = positions.legal_moves?.[squareName] || [];
@@ -66,7 +69,7 @@ function selectSquare(squareName) {
 }
 
 async function movePiece(from, to) {
-    if (!pieceAt(from) || from === to) return;
+    if (!pieceAt(from) || from === to || (positions.mode === 'engine' && positions.turn === 'black')) return;
 
     let promotion;
     const movingPiece = pieceAt(from);
@@ -95,6 +98,7 @@ async function movePiece(from, to) {
 async function requestGameAction(endpoint) {
     undoButton.disabled = true;
     resetButton.disabled = true;
+    modeSelect.disabled = true;
     try {
         const response = await fetch(endpoint, { method: 'POST' });
         const result = await response.json();
@@ -105,6 +109,32 @@ async function requestGameAction(endpoint) {
     } catch (error) {
         showMessage(error.message);
     } finally {
+        undoButton.disabled = false;
+        resetButton.disabled = false;
+        modeSelect.disabled = false;
+    }
+}
+
+async function setGameMode(mode) {
+    modeSelect.disabled = true;
+    undoButton.disabled = true;
+    resetButton.disabled = true;
+    try {
+        const response = await fetch('/api/mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not change game mode');
+        positions = result;
+        selectedSquare = null;
+        renderBoard();
+    } catch (error) {
+        modeSelect.value = positions.mode || 'two_player';
+        showMessage(error.message);
+    } finally {
+        modeSelect.disabled = false;
         undoButton.disabled = false;
         resetButton.disabled = false;
     }
@@ -139,6 +169,7 @@ squares.forEach((square) => {
 
 undoButton.addEventListener('click', () => requestGameAction('/api/undo'));
 resetButton.addEventListener('click', () => requestGameAction('/api/reset'));
+modeSelect.addEventListener('change', () => setGameMode(modeSelect.value));
 
 fetch('/api/state')
     .then((response) => {
@@ -147,6 +178,7 @@ fetch('/api/state')
     })
     .then((state) => {
         positions = state;
+        modeSelect.value = state.mode || 'two_player';
         renderBoard();
     })
     .catch((error) => {

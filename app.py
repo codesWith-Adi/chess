@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 import chess
 from pathlib import Path
 
-from bot import read_positions, write_legal_moves, write_positions
+from bot import choose_moves, read_positions, write_legal_moves, write_positions
 
 
 FRONTEND_DIRECTORY = Path(__file__).resolve().parent / "frontend"
@@ -10,10 +10,11 @@ app = Flask(__name__, static_folder=FRONTEND_DIRECTORY, static_url_path="/static
 board = chess.Board()
 last_move = None
 history = []
+game_mode = "two_player"
 
 
 def load_saved_board():
-    global last_move, history
+    global last_move, history, game_mode
     try:
         saved_positions = read_positions()
         saved_fen = saved_positions.get("fen")
@@ -21,6 +22,8 @@ def load_saved_board():
             board.set_fen(saved_fen)
         last_move = saved_positions.get("last_move")
         history = saved_positions.get("history", [])
+        if saved_positions.get("mode") in {"engine", "two_player"}:
+            game_mode = saved_positions["mode"]
     except (OSError, ValueError, TypeError):
         pass
 
@@ -81,6 +84,7 @@ def state_payload():
         "fen": board.fen(),
         "turn": "white" if board.turn == chess.WHITE else "black",
         "status": board_status(),
+        "mode": game_mode,
         **positions,
     }
     state["legal_moves"] = legal_moves_payload()
@@ -120,6 +124,7 @@ def make_move():
     if move not in board.legal_moves:
         return jsonify(error="illegal move"), 400
 
+    history.append({"fen": board.fen(), "last_move": last_move})
     moving_piece = board.piece_at(move.from_square)
     moving_piece_type = chess.piece_name(moving_piece.piece_type)
     same_type_squares = sorted(
@@ -132,7 +137,6 @@ def make_move():
         same_type_squares.index(move.from_square) + 1,
         len(same_type_squares),
     )
-    history.append({"fen": board.fen(), "last_move": last_move})
     board.push(move)
     last_move = {
         "from": from_square,
@@ -140,6 +144,18 @@ def make_move():
         "piece": moving_piece_name,
         "color": "white" if moving_piece.color == chess.WHITE else "black",
     }
+
+    if game_mode == "engine" and board.turn == chess.BLACK and not board.is_game_over():
+        engine_move = choose_moves(board)
+        engine_piece = board.piece_at(engine_move.from_square)
+        board.push(engine_move)
+        last_move = {
+            "from": chess.square_name(engine_move.from_square),
+            "to": chess.square_name(engine_move.to_square),
+            "piece": chess.piece_name(engine_piece.piece_type),
+            "color": "black",
+        }
+
     state = state_payload()
     state["history"] = history
     write_positions(state)
@@ -174,6 +190,18 @@ def reset_game():
     write_positions(state)
     save_legal_moves()
     return jsonify(state)
+
+
+@app.post("/api/mode")
+def set_game_mode():
+    global game_mode
+    data = request.get_json(silent=True) or {}
+    requested_mode = data.get("mode")
+    if requested_mode not in {"engine", "two_player"}:
+        return jsonify(error="invalid game mode"), 400
+
+    game_mode = requested_mode
+    return reset_game()
 
 
 load_saved_board()

@@ -60,6 +60,25 @@ h1 {
     gap: 10px;
 }
 
+.mode-control {
+    display: grid;
+    gap: 9px;
+}
+
+select {
+    border: 1px solid #c9a66b;
+    border-radius: 3px;
+    padding: 10px 12px;
+    color: #f4eadc;
+    background: #34251f;
+    font: inherit;
+}
+
+select:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
 button {
     border: 1px solid #c9a66b;
     border-radius: 3px;
