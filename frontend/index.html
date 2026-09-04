@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Board</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="game-layout">
+        <main class="board" aria-label="Chess board">
+            <div id="a1" class="blocks"></div>
+            <div id="b1" class="blocks"></div>
+            <div id="c1" class="blocks"></div>
+            <div id="d1" class="blocks"></div>
+            <div id="e1" class="blocks"></div>
+            <div id="f1" class="blocks"></div>
+            <div id="g1" class="blocks"></div>
+            <div id="h1" class="blocks"></div>
+            <div id="a2" class="blocks"></div>
+            <div id="b2" class="blocks"></div>
+            <div id="c2" class="blocks"></div>
+            <div id="d2" class="blocks"></div>
+            <div id="e2" class="blocks"></div>
+            <div id="f2" class="blocks"></div>
+            <div id="g2" class="blocks"></div>
+            <div id="h2" class="blocks"></div>
+            <div id="a3" class="blocks"></div>
+            <div id="b3" class="blocks"></div>
+            <div id="c3" class="blocks"></div>
+            <div id="d3" class="blocks"></div>
+            <div id="e3" class="blocks"></div>
+            <div id="f3" class="blocks"></div>
+            <div id="g3" class="blocks"></div>
+            <div id="h3" class="blocks"></div>
+            <div id="a4" class="blocks"></div>
+            <div id="b4" class="blocks"></div>
+            <div id="c4" class="blocks"></div>
+            <div id="d4" class="blocks"></div>
+            <div id="e4" class="blocks"></div>
+            <div id="f4" class="blocks"></div>
+            <div id="g4" class="blocks"></div>
+            <div id="h4" class="blocks"></div>
+            <div id="a5" class="blocks"></div>
+            <div id="b5" class="blocks"></div>
+            <div id="c5" class="blocks"></div>
+            <div id="d5" class="blocks"></div>
+            <div id="e5" class="blocks"></div>
+            <div id="f5" class="blocks"></div>
+            <div id="g5" class="blocks"></div>
+            <div id="h5" class="blocks"></div>
+            <div id="a6" class="blocks"></div>
+            <div id="b6" class="blocks"></div>
+            <div id="c6" class="blocks"></div>
+            <div id="d6" class="blocks"></div>
+            <div id="e6" class="blocks"></div>
+            <div id="f6" class="blocks"></div>
+            <div id="g6" class="blocks"></div>
+            <div id="h6" class="blocks"></div>
+            <div id="a7" class="blocks"></div>
+            <div id="b7" class="blocks"></div>
+            <div id="c7" class="blocks"></div>
+            <div id="d7" class="blocks"></div>
+            <div id="e7" class="blocks"></div>
+            <div id="f7" class="blocks"></div>
+            <div id="g7" class="blocks"></div>
+            <div id="h7" class="blocks"></div>
+            <div id="a8" class="blocks"></div>
+            <div id="b8" class="blocks"></div>
+            <div id="c8" class="blocks"></div>
+            <div id="d8" class="blocks"></div>
+            <div id="e8" class="blocks"></div>
+            <div id="f8" class="blocks"></div>
+            <div id="g8" class="blocks"></div>
+            <div id="h8" class="blocks"></div>
+        </main>
+
+
+        <aside class="side" aria-label="Game controls and messages">
+
+            <div class="controls">
+                <button id="undoButton" type="button" aria-label="Undo last move">Undo</button>
+                <button id="resetButton" type="button" aria-label="Reset game">Reset</button>
+            </div>
+            <div class="messages" aria-live="polite">
+                <span class="message-label">Message</span>
+                <p id="message" role="status">Loading game...</p>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
